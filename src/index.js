@@ -7,7 +7,7 @@ async function getConnection() {
         host: "localhost",
         database: "netflix",
         user: "root",
-        password: "@dalab", // he cambiado a mi contraseña para que me funcionara bien
+        password: "irmitate", // he cambiado a mi contraseña para que me funcionara bien "@dalab"
     });
     await connection.connect();
 
@@ -63,3 +63,6 @@ const serverPort = 4000;
 server.listen(serverPort, () => {
     console.log(`Server listening at http://localhost:${serverPort}`);
 });
+
+
+
