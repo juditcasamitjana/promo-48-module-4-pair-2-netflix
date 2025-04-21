@@ -1,5 +1,24 @@
 const express = require("express");
 const cors = require("cors");
+const mysql = require('mysql2/promise');
+
+async function getConnection() {
+    const connection = await mysql.createConnection({
+        host: 'localhost',
+        database: 'netflix',
+        user: 'root',
+        password: 'irmitate',
+
+    });
+    await connection.connect();
+
+    console.log(
+        `Conexión establecida con la base de datos (identificador=${connection.threadId})`
+    );
+
+    return connection;
+}
+
 
 // create and config server
 const server = express();
@@ -27,10 +46,16 @@ const fakeMovies = [
     },
 ];
 
-server.get("/movies", (req, res) => {
+server.get("/movies", async (req, res) => {
+    const connection = await getConnection();
+    const query = "SELECT * FROM movies";
+    const result = await connection.query(query);
+    console.log(result);
+
+
     res.json({
         success: true,
-        movies: fakeMovies,
+        movies: result,
     });
 });
 
