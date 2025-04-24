@@ -7,7 +7,7 @@ async function getConnection() {
         host: "localhost",
         database: "netflix",
         user: "root",
-        password: "irmitate", // he cambiado a mi contraseña para que me funcionara bien "@dalab"
+        password: "@dalab", // he cambiado a mi contraseña para que me funcionara bien "@dalab"
     });
     await connection.connect();
 
@@ -46,8 +46,27 @@ const fakeMovies = [
 
 server.get("/movies", async (req, res) => {
     const connection = await getConnection();
-    const query = "SELECT * FROM movies";
-    const [results] = await connection.query(query); // destructuring, devuelve solo los resultados
+
+    const genreFilterParam = req.query.genre;
+    const sortParam = req.query.sort;
+
+    let query = "SELECT * FROM movies"; // para que sea dinámica
+    const queryParams = [];
+
+    if (genreFilterParam) {
+        //filtrar por género
+        query += " WHERE genre = ?";
+        queryParams.push(genreFilterParam);
+    }
+
+    if (sortParam === "asc") {
+        //filtrar por titulo
+        query += " ORDER BY title ASC";
+    } else if (sortParam === "desc") {
+        query += " ORDER BY title DESC";
+    }
+
+    const [results] = await connection.query(query, queryParams); // destructuring, devuelve solo los resultados
     console.log(results);
 
     res.json({
@@ -57,7 +76,6 @@ server.get("/movies", async (req, res) => {
 
     connection.end(); // he añadido la finalización
 });
-
 
 //signup:
 server.post("/signup", async (req, res) => {
@@ -69,18 +87,32 @@ server.post("/signup", async (req, res) => {
     const [results] = await connection.query(query, [email, password]); // destructuring, devuelve solo los resultados
 
     res.json({
-        "success": true,
-        "userId": results.insertId,
+        success: true,
+        userId: results.insertId,
     });
 });
 
+server.set("view engine", "ejs");
 
+server.get("/movie/:movieId", async (req, res) => {
+    const connection = await getConnection();
+
+    const movieId = req.params.movieId;
+    console.log(movieId);
+
+    const query = "SELECT * FROM movies WHERE idMovie = ?";
+    const [results] = await connection.query(query, [movieId]);
+    console.log(results);
+
+    const foundMovie = results[0];
+
+    connection.end();
+
+    res.render("movie", foundMovie);
+});
 
 // init express aplication
 const serverPort = 4000;
 server.listen(serverPort, () => {
     console.log(`Server listening at http://localhost:${serverPort}`);
 });
-
-
-
