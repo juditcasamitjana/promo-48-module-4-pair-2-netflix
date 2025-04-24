@@ -58,6 +58,24 @@ server.get("/movies", async (req, res) => {
     connection.end(); // he añadido la finalización
 });
 
+
+//signup:
+server.post("/signup", async (req, res) => {
+    const connection = await getConnection();
+    const { email, password } = req.body;
+    console.log(email, password);
+
+    const query = "INSERT INTO users (email, password) VALUES (?, ?)";
+    const [results] = await connection.query(query, [email, password]); // destructuring, devuelve solo los resultados
+
+    res.json({
+        "success": true,
+        "userId": results.insertId,
+    });
+});
+
+
+
 // init express aplication
 const serverPort = 4000;
 server.listen(serverPort, () => {
