@@ -2,6 +2,9 @@ const express = require("express");
 const cors = require("cors");
 const mysql = require("mysql2/promise");
 
+const bcrypt = require("bcrypt");
+const hashedPassword = await bcrypt.hash(password, 10);
+
 async function getConnection() {
     const connection = await mysql.createConnection({
         host: "localhost",
@@ -84,7 +87,7 @@ server.post("/signup", async (req, res) => {
     console.log(email, password);
 
     const query = "INSERT INTO users (email, password) VALUES (?, ?)";
-    const [results] = await connection.query(query, [email, password]); // destructuring, devuelve solo los resultados
+    const [results] = await connection.query(query, [email, hashedPassword]); // destructuring, devuelve solo los resultados
 
     res.json({
         success: true,
